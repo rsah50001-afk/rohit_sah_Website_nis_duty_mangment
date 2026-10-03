@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PDMDH Duty Management</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#eef5fb;
+    padding:20px;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+}
+
+/* HEADER */
+
+.header{
+    background:white;
+    text-align:center;
+    padding:25px 10px;
+    border-radius:15px 15px 0 0;
+    border-top:8px solid #168bd1;
+    box-shadow:0 4px 15px rgba(0,0,0,.10);
+}
+
+.header h1{
+    color:#062b65;
+    font-size:30px;
+}
+
+.header h2{
+    color:#062b65;
+    margin-top:8px;
+    font-size:20px;
+}
+
+/* DATE */
+
+.date-box{
+    background:white;
+    margin-top:10px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.date-box label{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.date-box input{
+    padding:10px;
+    margin-left:10px;
+    border:2px solid #168bd1;
+    border-radius:7px;
+    font-size:16px;
+}
+
+#dayName{
+    margin-top:10px;
+    color:#168bd1;
+    font-weight:bold;
+    font-size:18px;
+}
+
+/* MANAGEMENT */
+
+.management{
+    background:white;
+    margin-top:10px;
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+ .management h2{
+    text-align:center;
+    color:#062b65;
+    margin-bottom:20px;
+}
+
+.add-member{
+    background:#f5f9fc;
+    border:1px solid #d7e5ef;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:20px;
+}
+
+.add-member h3{
+    color:#062b65;
+    margin-bottom:12px;
+}
+
+.add-form{
+    display:grid;
+    grid-template-columns:1fr 1fr 180px auto;
+    gap:10px;
+}
+
+.add-form input,.add-form select{
+    padding:10px;
+    border:1px solid #aaa;
+    border-radius:7px;
+    font-size:15px;
+}
+
+.add-btn{
+    background:#0d6efd;
+}
+
+.delete-btn{
+    background:#dc3545;
+    padding:8px 10px;
+    font-size:13px;
+}
+
+.shift-section{
+    margin-bottom:22px;
+}
+
+.shift-title{
+    padding:10px 14px;
+    border-radius:8px;
+    margin-bottom:8px;
+    color:#163b63;
+}
+
+.shift-title-A{background:#dff3ff;}
+.shift-title-B{background:#e4f6ff;}
+.shift-title-C{background:#eee2ff;}
+.shift-title-G{background:#fff1bd;}
+.shift-title-OFF{background:#ffdede;}
+
+@media(max-width:700px){
+    .add-form{
+        grid-template-columns:1fr;
+    }
+}
+
+/* SHIFT GROUPS + EMPLOYEE ROW */
+
+.shift-group{
+    margin-bottom:18px;
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+    border:1px solid #dbe5ef;
+}
+
+.shift-group-title{
+    padding:12px 15px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.shift-group.A .shift-group-title{background:#dff3ff;color:#12618d;}
+.shift-group.B .shift-group-title{background:#e4f6ff;color:#12618d;}
+.shift-group.C .shift-group-title{background:#eee2ff;color:#6336a1;}
+.shift-group.G .shift-group-title{background:#fff1bd;color:#8a6700;}
+.shift-group.OFF .shift-group-title{background:#ffdede;color:#a33a3a;}
+
+.employee-row{
+    display:grid;
+    grid-template-columns:50px 1fr 180px 150px;
+    gap:10px;
+    align-items:center;
+
+    padding:12px;
+    margin:8px;
+
+    background:#f5f9fc;
+    border-radius:8px;
+
+    border-left:5px solid #168bd1;
+}
+
+.shift-group.A .employee-row{border-left-color:#168bd1;}
+.shift-group.B .employee-row{border-left-color:#20a4df;}
+.shift-group.C .employee-row{border-left-color:#8b5cf6;}
+.shift-group.G .employee-row{border-left-color:#d9a800;}
+.shift-group.OFF .employee-row{border-left-color:#dc3545;}
+
+.number{
+    font-weight:bold;
+    color:#168bd1;
+}
+
+.name{
+    font-weight:bold;
+    color:#163b63;
+}
+
+.phone{
+    color:#666;
+    font-size:14px;
+}
+
+.shift-select{
+    padding:10px;
+    border-radius:7px;
+    border:1px solid #aaa;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.edit-btn{
+    margin-top:6px;
+    padding:7px 10px;
+    border:0;
+    border-radius:6px;
+    background:#0d6efd;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.edit-btn:hover{background:#084298;}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+}
+
+.modal-box{
+    background:white;
+    width:100%;
+    max-width:450px;
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+.modal-box h3{margin-bottom:15px;color:#163b63;}
+.modal-box input,.modal-box select{
+    width:100%;
+    padding:11px;
+    margin:7px 0;
+    border:1px solid #ccc;
+    border-radius:7px;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+}
+.modal-actions button{
+    flex:1;
+    padding:11px;
+    border:0;
+    border-radius:7px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.save-edit-btn{background:#198754;color:white;}
+.cancel-edit-btn{background:#6c757d;color:white;}
+
+
+/* SHIFT COLORS */
+
+.shift-A{
+    background:#dff3ff;
+}
+
+.shift-B{
+    background:#e4f6ff;
+}
+
+.shift-C{
+    background:#eee2ff;
+}
+
+.shift-G{
+    background:#fff1bd;
+}
+
+.shift-OFF{
+    background:#ffdede;
+}
+
+/* BUTTONS */
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+button{
+    border:none;
+    padding:12px 20px;
+    border-radius:7px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.save-btn{
+    background:#198754;
+}
+
+.print-btn{
+    background:#6f42c1;
+}
+
+.reset-btn{
+    background:#dc3545;
+}
+
+.success{
+    text-align:center;
+    margin-top:15px;
+    color:#198754;
+    font-weight:bold;
+}
+
+/* DUTY SUMMARY */
+
+.summary{
+    background:white;
+    margin-top:15px;
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.summary h2{
+    text-align:center;
+    color:#062b65;
+    margin-bottom:15px;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+}
+
+.summary-card{
+    padding:15px;
+    text-align:center;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.A{
+    background:#dff3ff;
+}
+
+.B{
+    background:#e4f6ff;
+}
+
+.C{
+    background:#eee2ff;
+}
+
+.G{
+    background:#fff1bd;
+}
+
+.OFF{
+    background:#ffdede;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    body{
+        padding:8px;
+    }
+
+    .header h1{
+        font-size:22px;
+    }
+
+    .header h2{
+        font-size:16px;
+    }
+
+    .date-box input{
+        margin-top:10px;
+        margin-left:0;
+    }
+
+    .shift-group-title{
+        font-size:16px;
+    }
+
+    .employee-row{
+        grid-template-columns:35px 1fr;
+    }
+
+    .shift-select{
+        grid-column:2;
+        width:100%;
+    }
+
+    .summary-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+/* EXTRA MOBILE PHONE OPTIMIZATION */
+@media (max-width: 480px){
+    body{
+        padding:5px;
+        font-size:14px;
+    }
+
+    .container{
+        width:100%;
+    }
+
+    .header{
+        padding:18px 8px;
+        border-radius:10px 10px 0 0;
+    }
+
+    .header h1{
+        font-size:20px;
+        line-height:1.25;
+    }
+
+    .header h2{
+        font-size:14px;
+        line-height:1.3;
+    }
+
+    .date-box, .management, .summary{
+        padding:12px;
+        border-radius:8px;
+    }
+
+    .date-box label{
+        display:block;
+        font-size:16px;
+    }
+
+    .date-box input{
+        width:100%;
+        margin:10px 0 0;
+        min-height:44px;
+        font-size:16px;
+    }
+
+    .add-member{
+        padding:10px;
+    }
+
+    .add-form{
+        display:flex;
+        flex-direction:column;
+        gap:9px;
+    }
+
+    .add-form input, .add-form select{
+        width:100%;
+        min-height:44px;
+        font-size:16px;
+    }
+
+    button{
+        min-height:44px;
+        padding:10px 14px;
+        font-size:15px;
+        touch-action:manipulation;
+    }
+
+    .buttons{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+
+    .buttons button{
+        width:100%;
+    }
+
+    .shift-group{
+        margin-bottom:12px;
+    }
+
+    .shift-group-title{
+        padding:11px 12px;
+        font-size:16px;
+    }
+
+    .employee-row{
+        display:grid;
+        grid-template-columns:32px minmax(0,1fr);
+        gap:7px;
+        padding:10px;
+        margin:6px;
+    }
+
+    .employee-row .number{
+        grid-column:1;
+        grid-row:1 / span 4;
+        align-self:start;
+        padding-top:4px;
+    }
+
+    .employee-row .name{
+        grid-column:2;
+        font-size:15px;
+        overflow-wrap:anywhere;
+    }
+
+    .employee-row .phone{
+        grid-column:2;
+        font-size:13px;
+        overflow-wrap:anywhere;
+    }
+
+    .employee-row .shift-select{
+        grid-column:2;
+        width:100%;
+        min-height:44px;
+        font-size:15px;
+    }
+
+    .employee-actions{
+        grid-column:2;
+        display:flex;
+        gap:7px;
+        width:100%;
+    }
+
+    .employee-actions button{
+        flex:1;
+        min-width:0;
+    }
+
+    .edit-btn, .delete-btn{
+        width:auto;
+        min-height:42px;
+        padding:9px 10px;
+        font-size:13px;
+    }
+
+    .summary-grid{
+        grid-template-columns:1fr 1fr;
+        gap:7px;
+    }
+
+    .summary-card{
+        padding:12px 7px;
+    }
+
+    .modal{
+        padding:10px;
+    }
+
+    .modal-content{
+        width:100%;
+        max-height:90vh;
+        overflow:auto;
+    }
+}
+
+/* PRINT */
+
+@media print{
+
+    body{
+        background:white;
+        padding:0;
+    }
+
+    .date-box,
+    .management,
+    .buttons,
+    .summary{
+        box-shadow:none;
+    }
+
+    .header{
+        border-top:none;
+    }
+
+}
+
+
+/* 2-MONTH UPDATE REMINDER */
+.update-reminder{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;}
+.update-box{background:#fff;width:min(440px,100%);border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center;}
+.update-box h2{margin:0 0 10px;color:#173b6d;}
+.update-box p{margin:8px 0 18px;line-height:1.5;color:#444;}
+.update-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.update-actions button{border:0;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer;}
+.update-now{background:#173b6d;color:#fff;}
+.update-later{background:#e9eef5;color:#173b6d;}
+@media(max-width:520px){.update-box{padding:20px}.update-actions button{width:100%;}}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>
+            Padmaabati Devi Multispeciality Hospital
+        </h1>
+
+        <h2>
+            (PDMH) (NIS Security)
+        </h2>
+
+    </div>
+
+
+    <!-- DATE -->
+
+    <div class="date-box">
+
+        <label>
+            Duty Date:
+        </label>
+
+        <input
+            type="date"
+            id="dutyDate"
+            onchange="loadDuty()"
+        >
+
+        <div id="dayName"></div>
+
+    </div>
+
+
+    <!-- EMPLOYEE MANAGEMENT -->
+
+    <div class="management">
+
+        <h2>
+            Daily Duty Shift Management
+        </h2>
+
+        <div class="add-member">
+            <h3>➕ Add New Member</h3>
+            <div class="add-form">
+                <input type="text" id="newName" placeholder="Member Name">
+                <input type="text" id="newPhone" placeholder="Phone Number">
+                <select id="newShift">
+                    <option value="A">A Shift</option>
+                    <option value="B">B Shift</option>
+                    <option value="C">C Shift</option>
+                    <option value="G">G Shift</option>
+                    <option value="OFF">Off Duty</option>
+                </select>
+                <button class="add-btn" onclick="addNewMember()">Add Member</button>
+            </div>
+        </div>
+
+        <div id="employeeList"></div>
+
+        <div class="buttons">
+
+            <button
+                class="save-btn"
+                onclick="saveDuty()">
+
+                💾 Save Duty
+
+            </button>
+
+            <button
+                class="print-btn"
+                onclick="window.print()">
+
+                🖨 Print Duty
+
+            </button>
+
+            <button
+                class="reset-btn"
+                onclick="resetDuty()">
+
+                🔄 Reset Day
+
+            </button>
+
+        </div>
+
+        <div
+            id="message"
+            class="success">
+        </div>
+
+    </div>
+
+
+    <!-- EDIT MEMBER MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-box">
+            <h3>✏️ Edit Member</h3>
+            <input type="hidden" id="editId">
+            <input type="text" id="editName" placeholder="Member Name">
+            <input type="text" id="editPhone" placeholder="Phone Number">
+            <div class="modal-actions">
+                <button class="save-edit-btn" onclick="saveEditMember()">💾 Save Changes</button>
+                <button class="cancel-edit-btn" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+
+    <div class="summary">
+
+        <h2>
+            Today's Duty Summary
+        </h2>
+
+        <div class="summary-grid">
+
+            <div class="summary-card A">
+                A Shift<br>
+                <span id="countA">0</span>
+            </div>
+
+            <div class="summary-card B">
+                B Shift<br>
+                <span id="countB">0</span>
+            </div>
+
+            <div class="summary-card C">
+                C Shift<br>
+                <span id="countC">0</span>
+            </div>
+
+            <div class="summary-card G">
+                G Shift<br>
+                <span id="countG">0</span>
+            </div>
+
+            <div class="summary-card OFF">
+                Off Duty<br>
+                <span id="countOFF">0</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================
+   EMPLOYEE MASTER LIST
+===================================== */
+
+const employees = [
+
+    {
+        id:1,
+        name:"K.K. Jha",
+        phone:"9204945327"
+    },
+
+    {
+        id:2,
+        name:"Suraj Kr. Jha",
+        phone:"6209281635"
+    },
+
+    {
+        id:3,
+        name:"A.R. Srivastava",
+        phone:"9334094810"
+    },
+
+    {
+        id:4,
+        name:"Rohit Sah",
+        phone:"8757752409"
+    },
+
+    {
+        id:5,
+        name:"Harendra Singh",
+        phone:"6206092612"
+    },
+
+    {
+        id:6,
+        name:"Krishna Mishra",
+        phone:"9263581076"
+    },
+
+    {
+        id:7,
+        name:"Devashish Mahato",
+        phone:"8102193230"
+    },
+
+    {
+        id:8,
+        name:"Ritesh Kumar",
+        phone:"9934437563"
+    },
+
+    {
+        id:9,
+        name:"Suraj Mahali",
+        phone:"6200818656"
+    },
+
+    {
+        id:10,
+        name:"Suraj Kumar",
+        phone:"7480085216"
+    },
+
+    {
+        id:11,
+        name:"Abhay Kumar",
+        phone:"7564911171"
+    },
+
+    {
+        id:12,
+        name:"Shivraj Mahato",
+        phone:"7482897813"
+    },
+
+    {
+        id:13,
+        name:"Aman Kumar Singh",
+        phone:"6207531397"
+    },
+
+    {
+        id:14,
+        name:"Sandeep Majhi",
+        phone:"6372498492"
+    },
+
+    {
+        id:15,
+        name:"Manish Singh",
+        phone:"6201498848"
+    },
+
+    {
+        id:16,
+        name:"M.L. Shrivastav",
+        phone:"9955808545"
+    },
+
+    {
+        id:17,
+        name:"Mangal Mahato",
+        phone:"8797977686"
+    },
+
+    {
+        id:18,
+        name:"Nitish Kumar",
+        phone:"9304431406"
+    }
+
+];
+
+
+/* =====================================
+   TODAY DATE
+===================================== */
+
+const dateInput =
+    document.getElementById("dutyDate");
+
+const today =
+    new Date().toISOString().split("T")[0];
+
+dateInput.value = today;
+
+
+/* =====================================
+   SHOW DAY
+===================================== */
+
+function showDay(){
+
+    const date =
+        new Date(
+            dateInput.value + "T00:00:00"
+        );
+
+    const days = [
+
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+
+    ];
+
+    document.getElementById("dayName")
+        .innerText =
+        days[date.getDay()];
+
+}
+
+
+/* =====================================
+   GET STORAGE KEY
+===================================== */
+
+function getKey(){
+
+    return "hospital_duty_" +
+           dateInput.value;
+
+}
+
+
+/* =====================================
+   DEFAULT DUTY
+===================================== */
+
+const defaultDuty = {
+
+    1:"A",
+    2:"A",
+    3:"A",
+    4:"A",
+
+    5:"B",
+    6:"B",
+    7:"B",
+    8:"B",
+    9:"B",
+
+    10:"C",
+    11:"C",
+    12:"C",
+    13:"C",
+    14:"C",
+
+    15:"G",
+
+    16:"OFF",
+    17:"OFF",
+    18:"OFF"
+
+};
+
+
+/* =====================================
+   LOAD DUTY
+===================================== */
+
+function loadDuty(){
+
+    const storedEmployees = localStorage.getItem("hospital_employees");
+    if(storedEmployees){
+        const parsedEmployees = JSON.parse(storedEmployees);
+        employees.length = 0;
+        parsedEmployees.forEach(function(emp){ employees.push(emp); });
+    }
+
+    showDay();
+
+    let saved =
+        localStorage.getItem(getKey());
+
+    let duty;
+
+    if(saved){
+
+        duty =
+            JSON.parse(saved);
+
+    }else{
+
+        duty =
+            {...defaultDuty};
+
+    }
+
+    displayEmployees(duty);
+
+}
+
+
+/* =====================================
+   DISPLAY EMPLOYEES
+===================================== */
+
+function displayEmployees(duty){
+
+    const list = document.getElementById("employeeList");
+    list.innerHTML = "";
+
+    const groups = {
+        A: [], B: [], C: [], G: [], OFF: []
+    };
+
+    employees.forEach(function(emp){
+        const shift = duty[emp.id] || "OFF";
+        if(!groups[shift]) groups[shift] = [];
+        groups[shift].push(emp);
+    });
+
+    const titles = {
+        A: "🅰️ A Shift",
+        B: "🅱️ B Shift",
+        C: "🅲 C Shift",
+        G: "🌙 G Shift",
+        OFF: "🔴 Off Duty"
+    };
+
+    ["A","B","C","G","OFF"].forEach(function(shift){
+        const section = document.createElement("div");
+        section.className = "shift-section";
+
+        const title = document.createElement("h3");
+        title.className = "shift-title shift-title-" + shift;
+        title.innerText = titles[shift] + " (" + groups[shift].length + ")";
+        section.appendChild(title);
+
+        groups[shift].forEach(function(emp,index){
+            const row = document.createElement("div");
+            row.className = "employee-row";
+
+            const currentShift = duty[emp.id] || "OFF";
+
+            row.innerHTML = `
+                <div class="number">${index + 1}</div>
+                <div>
+                    <div class="name">${emp.name}</div>
+                    <div class="phone">${emp.phone}</div>
+                </div>
+                <select class="shift-select shift-${currentShift}"
+                    id="shift-${emp.id}"
+                    onchange="changeShift(${emp.id}, this)">
+                    <option value="A" ${currentShift === "A" ? "selected" : ""}>A Shift</option>
+                    <option value="B" ${currentShift === "B" ? "selected" : ""}>B Shift</option>
+                    <option value="C" ${currentShift === "C" ? "selected" : ""}>C Shift</option>
+                    <option value="G" ${currentShift === "G" ? "selected" : ""}>G Shift</option>
+                    <option value="OFF" ${currentShift === "OFF" ? "selected" : ""}>Off Duty</option>
+                </select>
+                <div>
+                    Current: <b>${currentShift}</b>
+                    <br>
+                    <button class="edit-btn" onclick="openEditMember(${emp.id})">✏️ Edit</button>
+                    <button class="delete-btn" onclick="deleteMember(${emp.id})">🗑 Delete</button>
+                </div>
+            `;
+
+            section.appendChild(row);
+        });
+
+        list.appendChild(section);
+    });
+
+    updateSummary(duty);
+}
+
+
+/* =====================================
+   CHANGE SHIFT
+===================================== */
+
+function changeShift(id, select){
+
+    let duty = JSON.parse(localStorage.getItem(getKey()) || "{}");
+    duty[id] = select.value;
+
+    localStorage.setItem(getKey(), JSON.stringify(duty));
+
+    // Employee immediately moves to the new shift section.
+    displayEmployees(duty);
+
+}
+
+
+/* =====================================
+   SAVE DUTY
+===================================== */
+
+function saveDuty(){
+
+    let duty = {};
+
+
+    employees.forEach(
+        function(emp){
+
+            const select =
+                document.getElementById(
+                    "shift-" + emp.id
+                );
+
+            duty[emp.id] =
+                select.value;
+
+        }
+    );
+
+
+    localStorage.setItem(
+        getKey(),
+        JSON.stringify(duty)
+    );
+
+
+    updateSummary(duty);
+
+
+    document.getElementById(
+        "message"
+    ).innerText =
+        "✅ Duty saved successfully for " +
+        dateInput.value;
+
+
+    setTimeout(
+        function(){
+
+            document.getElementById(
+                "message"
+            ).innerText = "";
+
+        },
+        3000
+    );
+
+}
+
+
+/* =====================================
+   SUMMARY
+===================================== */
+
+function updateSummary(duty){
+
+    let A = 0;
+    let B = 0;
+    let C = 0;
+    let G = 0;
+    let OFF = 0;
+
+
+    employees.forEach(
+        function(emp){
+
+            const shift =
+                duty[emp.id];
+
+            if(shift === "A") A++;
+
+            if(shift === "B") B++;
+
+            if(shift === "C") C++;
+
+            if(shift === "G") G++;
+
+            if(shift === "OFF") OFF++;
+
+        }
+    );
+
+
+    document.getElementById("countA")
+        .innerText = A;
+
+    document.getElementById("countB")
+        .innerText = B;
+
+    document.getElementById("countC")
+        .innerText = C;
+
+    document.getElementById("countG")
+        .innerText = G;
+
+    document.getElementById("countOFF")
+        .innerText = OFF;
+
+}
+
+
+/* =====================================
+   ADD NEW MEMBER
+===================================== */
+
+function addNewMember(){
+
+    const name = document.getElementById("newName").value.trim();
+    const phone = document.getElementById("newPhone").value.trim();
+    const shift = document.getElementById("newShift").value;
+
+    if(!name){
+        alert("Please enter member name.");
+        return;
+    }
+
+    let storedEmployees = JSON.parse(
+        localStorage.getItem("hospital_employees") || "null"
+    );
+
+    if(!storedEmployees){
+        storedEmployees = employees.slice();
+    }
+
+    const maxId = storedEmployees.reduce(function(max, emp){
+        return Math.max(max, Number(emp.id) || 0);
+    }, 0);
+
+    const newMember = {
+        id: maxId + 1,
+        name: name,
+        phone: phone || "-"
+    };
+
+    storedEmployees.push(newMember);
+    localStorage.setItem(
+        "hospital_employees",
+        JSON.stringify(storedEmployees)
+    );
+
+    // Keep the current page's employee list in sync.
+    employees.length = 0;
+    storedEmployees.forEach(function(emp){ employees.push(emp); });
+
+    let duty = JSON.parse(localStorage.getItem(getKey()) || "{}");
+    duty[newMember.id] = shift;
+    localStorage.setItem(getKey(), JSON.stringify(duty));
+
+    document.getElementById("newName").value = "";
+    document.getElementById("newPhone").value = "";
+    document.getElementById("newShift").value = "A";
+
+    displayEmployees(duty);
+
+    document.getElementById("message").innerText =
+        "✅ " + name + " added successfully.";
+}
+
+
+/* =====================================
+   EDIT MEMBER
+===================================== */
+
+function openEditMember(id){
+    const member = employees.find(function(emp){
+        return Number(emp.id) === Number(id);
+    });
+
+    if(!member) return;
+
+    document.getElementById("editId").value = member.id;
+    document.getElementById("editName").value = member.name;
+    document.getElementById("editPhone").value = member.phone || "";
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEditModal(){
+    document.getElementById("editModal").style.display = "none";
+}
+
+function saveEditMember(){
+    const id = Number(document.getElementById("editId").value);
+    const name = document.getElementById("editName").value.trim();
+    const phone = document.getElementById("editPhone").value.trim();
+
+    if(!name){
+        alert("Please enter member name.");
+        return;
+    }
+
+    const member = employees.find(function(emp){
+        return Number(emp.id) === id;
+    });
+
+    if(!member) return;
+
+    member.name = name;
+    member.phone = phone || "-";
+
+    localStorage.setItem("hospital_employees", JSON.stringify(employees));
+
+    closeEditModal();
+    displayEmployees(getDuty());
+
+    document.getElementById("message").innerText =
+        "✅ Member details updated successfully.";
+}
+
+// Close edit box when clicking outside it.
+document.getElementById("editModal").addEventListener("click", function(e){
+    if(e.target === this) closeEditModal();
+});
+
+
+/* =====================================
+   DELETE MEMBER
+===================================== */
+
+function deleteMember(id){
+
+    const member = employees.find(function(emp){
+        return Number(emp.id) === Number(id);
+    });
+
+    if(!member) return;
+
+    if(!confirm("Kya aap " + member.name + " ko delete karna chahte hain?")){
+        return;
+    }
+
+    let storedEmployees = JSON.parse(
+        localStorage.getItem("hospital_employees") || "null"
+    );
+
+    if(!storedEmployees){
+        storedEmployees = employees.slice();
+    }
+
+    storedEmployees = storedEmployees.filter(function(emp){
+        return Number(emp.id) !== Number(id);
+    });
+
+    localStorage.setItem(
+        "hospital_employees",
+        JSON.stringify(storedEmployees)
+    );
+
+    employees.length = 0;
+    storedEmployees.forEach(function(emp){ employees.push(emp); });
+
+    let duty = JSON.parse(localStorage.getItem(getKey()) || "{}");
+    delete duty[id];
+    localStorage.setItem(getKey(), JSON.stringify(duty));
+
+    displayEmployees(duty);
+
+    document.getElementById("message").innerText =
+        "🗑 " + member.name + " deleted.";
+}
+
+
+/* =====================================
+   RESET CURRENT DATE
+===================================== */
+
+function resetDuty(){
+
+    const confirmReset =
+        confirm(
+            "Kya aap is date ki duty reset karna chahte hain?"
+        );
+
+
+    if(!confirmReset){
+        return;
+    }
+
+
+    localStorage.removeItem(
+        getKey()
+    );
+
+
+    loadDuty();
+
+}
+
+
+/* =====================================
+   2-MONTH UPDATE REMINDER
+   Starts counting from first use.
+   After 60 days it shows a reminder.
+===================================== */
+function checkTwoMonthUpdateReminder(){
+    const INSTALL_KEY = "hospital_app_first_used";
+    const REMIND_KEY = "hospital_app_update_remind_again";
+    const firstUsed = localStorage.getItem(INSTALL_KEY);
+    const now = Date.now();
+
+    if(!firstUsed){
+        localStorage.setItem(INSTALL_KEY, String(now));
+        return;
+    }
+
+    const sixtyDays = 60 * 24 * 60 * 60 * 1000;
+    const remindAgain = Number(localStorage.getItem(REMIND_KEY) || 0);
+
+    if(now - Number(firstUsed) >= sixtyDays && now >= remindAgain){
+        const box = document.getElementById("updateReminder");
+        if(box){ box.style.display = "flex"; }
+    }
+}
+
+function remindLater(){
+    // Reminder will appear again after 7 days.
+    localStorage.setItem(
+        "hospital_app_update_remind_again",
+        String(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
+    const box = document.getElementById("updateReminder");
+    if(box){ box.style.display = "none"; }
+}
+
+function requestUpdate(){
+    // Change this message/link later when a new version is available.
+    alert("Update required. Naya Duty Management HTML file/code administrator se lekar purani file ko replace karein.");
+    const box = document.getElementById("updateReminder");
+    if(box){ box.style.display = "none"; }
+}
+
+/* =====================================
+   START
+===================================== */
+
+loadDuty();
+checkTwoMonthUpdateReminder();
+
+</script>
+
+
+<!-- 2-MONTH UPDATE REMINDER -->
+<div id="updateReminder" class="update-reminder">
+  <div class="update-box">
+    <h2>🔄 Update Reminder</h2>
+    <p id="updateReminderText">Aapke Duty Management system ko use karte hue 2 months complete ho gaye hain. Latest code/version se update karne ka time hai.</p>
+    <div class="update-actions">
+      <button class="update-now" onclick="requestUpdate()">📥 Update Now</button>
+      <button class="update-later" onclick="remindLater()">⏰ Remind Me Later</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
